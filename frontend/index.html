@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apex AI — Personal Finance & Intelligent Fraud Shield</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon sentinel-emblem">
+          <i class="ph-fill ph-shield-star"></i>
+        </div>
+        <div class="brand-text">
+          <h2>SENTINEL<span class="gradient-text">.CORE</span></h2>
+          <p>Autonomous Wealth &amp; Shield</p>
+        </div>
+      </div>
+
+      <nav class="nav-menu">
+        <button class="nav-item active" data-tab="dashboard">
+          <i class="ph ph-squares-four"></i>
+          <span>Dashboard</span>
+        </button>
+        <button class="nav-item" data-tab="transactions">
+          <i class="ph ph-arrows-left-right"></i>
+          <span>Transactions</span>
+          <span class="badge count-badge" id="nav-tx-count">0</span>
+        </button>
+        <button class="nav-item" data-tab="budgets">
+          <i class="ph ph-chart-pie-slice"></i>
+          <span>Budgets &amp; Subs</span>
+        </button>
+        <button class="nav-item" data-tab="advisor">
+          <i class="ph ph-sparkle"></i>
+          <span>AI Advisor &amp; Chat</span>
+        </button>
+        <button class="nav-item" data-tab="fraud">
+          <i class="ph ph-shield-warning"></i>
+          <span>Fraud Center</span>
+          <span class="badge danger-badge pulse" id="nav-fraud-count" style="display: none;">0</span>
+        </button>
+        <button class="nav-item" data-tab="simulator">
+          <i class="ph ph-crosshair"></i>
+          <span>Attack Sandbox</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <!-- Quick Emergency Panic Freeze -->
+        <button class="btn btn-panic" id="btn-emergency-panic" title="Instantly Freeze All Cards &amp; Accounts">
+          <i class="ph-bold ph-lock-key"></i>
+          <span>Emergency Lockdown</span>
+        </button>
+
+        <div class="health-mini-card">
+          <div class="health-header">
+            <span>Financial Resilience</span>
+            <strong id="mini-health-score">--/100</strong>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill emerald" id="mini-health-bar" style="width: 0%;"></div>
+          </div>
+          <p class="health-grade-text" id="mini-health-grade">Analyzing metrics...</p>
+        </div>
+
+        <div class="system-status">
+          <span class="status-dot green"></span>
+          <span>Sentinel Sentry 2026</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Top App Header -->
+      <header class="top-header">
+        <div class="header-left">
+          <div class="page-badge-pill" id="page-theme-badge">
+            <span class="badge-dot"></span>
+            <span id="page-theme-label">Executive View</span>
+          </div>
+          <h1 id="page-title">Financial Executive Dashboard</h1>
+          <p class="subtitle" id="page-subtitle">Real-time wealth tracking, automated categorization &amp; multi-vector fraud interception</p>
+        </div>
+        <div class="header-actions">
+          <!-- Currency Selector -->
+          <div class="currency-selector-box">
+            <i class="ph-bold ph-currency-circle-dollar"></i>
+            <select id="global-currency-select" class="currency-select" title="Change Base Currency">
+              <option value="INR">₹ INR (Indian Rupee)</option>
+              <option value="USD" selected>$ USD (US Dollar)</option>
+              <option value="EUR">€ EUR (Euro)</option>
+              <option value="GBP">£ GBP (British Pound)</option>
+              <option value="JPY">¥ JPY (Japanese Yen)</option>
+              <option value="AED">د.إ AED (UAE Dirham)</option>
+              <option value="CAD">$ CAD (Canadian Dollar)</option>
+              <option value="AUD">$ AUD (Australian Dollar)</option>
+            </select>
+          </div>
+
+          <!-- Export Statement PDF / Print Button -->
+          <a href="/api/finance/export-report" target="_blank" class="btn btn-secondary" id="btn-export-statement" title="Printable Executive Wealth Statement">
+            <i class="ph-bold ph-printer"></i>
+            <span>Statement</span>
+          </a>
+
+          <!-- Privacy Hide Balances Toggle -->
+          <button class="btn btn-icon" id="btn-privacy-toggle" title="Toggle Private Mode (Hide Balances)">
+            <i class="ph-bold ph-eye" id="privacy-icon"></i>
+          </button>
+
+          <!-- Dark/Light Theme Button -->
+          <button class="btn btn-icon theme-toggle-btn" id="btn-theme-toggle" title="Toggle Dark/Light Theme">
+            <i class="ph-bold ph-sun" id="theme-icon"></i>
+          </button>
+
+          <button class="btn btn-secondary" id="btn-quick-sandbox">
+            <i class="ph ph-crosshair"></i>
+            <span>Simulate Attack</span>
+          </button>
+          <button class="btn btn-primary" id="btn-add-transaction">
+            <i class="ph-bold ph-plus"></i>
+            <span>Record Transaction</span>
+          </button>
+          <button class="btn btn-icon" id="btn-refresh" title="Refresh Data">
+            <i class="ph ph-arrows-clockwise"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- Global Fraud Threat Alert Banner (Conditionally Shown) -->
+      <div class="threat-banner" id="global-threat-banner" style="display: none;">
+        <div class="threat-icon">
+          <i class="ph-bold ph-warning-octagon"></i>
+        </div>
+        <div class="threat-content">
+          <h4>SECURITY ALERT: Suspicious Activity Intercepted</h4>
+          <p id="threat-banner-text">Our AI multi-vector risk engine detected high-risk anomalous transactions.</p>
+        </div>
+        <div class="threat-actions">
+          <button class="btn btn-danger-sm" id="btn-view-threats">Review Fraud Center</button>
+        </div>
+      </div>
+
+      <!-- TAB 1: EXECUTIVE DASHBOARD -->
+      <section class="tab-view active" id="tab-dashboard">
+        <!-- NLP Natural Language Smart Quick-Add Bar -->
+        <div class="card" style="margin-bottom: 20px; padding: 14px 20px; background: var(--bg-card); border-left: 4px solid var(--page-accent); display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 280px;">
+            <i class="ph-bold ph-magic-wand" style="font-size: 20px; color: var(--page-accent);"></i>
+            <input type="text" id="input-nlp-quick-add" placeholder="✨ NLP Smart Add: 'Paid 450 on Dominos Pizza in Mumbai' or 'Spent 1200 at Whole Foods'..." style="width: 100%; background: transparent; border: none; outline: none; color: var(--text-primary); font-size: 14px;">
+          </div>
+          <button class="btn btn-primary" id="btn-nlp-submit" style="padding: 6px 16px; font-size: 13px;">
+            <i class="ph-bold ph-plus-circle"></i> Quick Parse & Log
+          </button>
+        </div>
+
+        <!-- Metric Cards Row -->
+        <div class="metrics-grid">
+          <div class="metric-card glow-card">
+            <div class="metric-header">
+              <span class="metric-label">Total Net Worth</span>
+              <div class="metric-icon-box emerald"><i class="ph ph-wallet"></i></div>
+            </div>
+            <div class="metric-value" id="net-worth-val">$0.00</div>
+            <div class="metric-subtext">Across 4 connected accounts</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-label">Monthly Inflow</span>
+              <div class="metric-icon-box blue"><i class="ph ph-arrow-down-left"></i></div>
+            </div>
+            <div class="metric-value positive" id="income-val">$0.00</div>
+            <div class="metric-subtext" id="income-sub">Payroll & deposits</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-label">Monthly Spend</span>
+              <div class="metric-icon-box orange"><i class="ph ph-arrow-up-right"></i></div>
+            </div>
+            <div class="metric-value" id="expense-val">$0.00</div>
+            <div class="metric-subtext" id="expense-sub">Cleared expenses</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-label">Monthly Savings Rate</span>
+              <div class="metric-icon-box purple"><i class="ph ph-piggy-bank"></i></div>
+            </div>
+            <div class="metric-value highlight" id="savings-rate-val">0.0%</div>
+            <div class="metric-subtext" id="savings-rate-sub">Target: &gt; 20%</div>
+          </div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="card-header">
+              <div class="card-title">
+                <i class="ph ph-chart-line-up"></i>
+                <h3>Cashflow Trend &amp; Savings Momentum</h3>
+              </div>
+              <span class="tag">6-Month History</span>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="cashflowChart"></canvas>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <div class="card-header">
+              <div class="card-title">
+                <i class="ph ph-chart-pie"></i>
+                <h3>Spending by Category</h3>
+              </div>
+              <span class="tag">This Month</span>
+            </div>
+            <div class="chart-wrapper donut-wrapper">
+              <canvas id="categoryDonutChart"></canvas>
+            </div>
+            <div class="category-legend" id="category-legend-list"></div>
+          </div>
+        </div>
+
+        <!-- Predictive Expense & Account Grid -->
+        <div class="dashboard-split-grid">
+          <!-- Predictive Forecast Box -->
+          <div class="card forecast-box">
+            <div class="card-header">
+              <div class="card-title">
+                <i class="ph ph-trend-up"></i>
+                <h3>AI Month-End Expense Forecast</h3>
+              </div>
+              <span class="badge" id="forecast-status-badge">On Track</span>
+            </div>
+            <div class="forecast-content">
+              <div class="forecast-stats">
+                <div class="f-stat">
+                  <span>Current Spent</span>
+                  <strong id="fc-spent">$0.00</strong>
+                </div>
+                <div class="f-stat">
+                  <span>Daily Burn Rate</span>
+                  <strong id="fc-burn">$0.00 / day</strong>
+                </div>
+                <div class="f-stat highlight">
+                  <span>Projected Month-End</span>
+                  <strong id="fc-projected">$0.00</strong>
+                </div>
+              </div>
+              <div class="chart-wrapper-sm">
+                <canvas id="forecastTrajectoryChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Connected Accounts Overview -->
+          <div class="card accounts-box">
+            <div class="card-header">
+              <div class="card-title">
+                <i class="ph ph-bank"></i>
+                <h3>Connected Accounts &amp; Cards</h3>
+              </div>
+              <button class="btn btn-ghost-sm" id="btn-manage-accounts">Security Toggles</button>
+            </div>
+            <div class="accounts-list" id="accounts-container">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Transactions Table Preview -->
+        <div class="card table-card">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="ph ph-receipt"></i>
+              <h3>Recent Transactions &amp; Risk Badges</h3>
+            </div>
+            <button class="btn btn-ghost-sm" id="btn-view-all-tx">View All Transactions &rarr;</button>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Date &amp; Time</th>
+                  <th>Merchant &amp; Details</th>
+                  <th>Category</th>
+                  <th>Account</th>
+                  <th>Location</th>
+                  <th>Amount</th>
+                  <th>Risk Score</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="recent-tx-tbody">
+                <!-- Injected via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: TRANSACTIONS & CATEGORIZATION -->
+      <section class="tab-view" id="tab-transactions">
+        <div class="card">
+          <div class="table-toolbar">
+            <div class="search-box">
+              <i class="ph ph-magnifying-glass"></i>
+              <input type="text" id="tx-search-input" placeholder="Search merchant, description or notes...">
+            </div>
+            <div class="filter-group">
+              <select id="tx-filter-category" class="select-control">
+                <option value="All">All Categories</option>
+                <option value="Groceries">Groceries</option>
+                <option value="Dining">Dining</option>
+                <option value="Utilities">Utilities</option>
+                <option value="Subscriptions">Subscriptions</option>
+                <option value="Tech & Electronics">Tech & Electronics</option>
+                <option value="Travel">Travel</option>
+                <option value="Health & Fitness">Health & Fitness</option>
+                <option value="Entertainment">Entertainment</option>
+                <option value="Luxury & Jewelry">Luxury & Jewelry</option>
+                <option value="Crypto & Transfers">Crypto & Transfers</option>
+                <option value="Salary & Income">Salary & Income</option>
+              </select>
+
+              <select id="tx-filter-risk" class="select-control">
+                <option value="All">All Risk Tiers</option>
+                <option value="SAFE">Safe (0-29)</option>
+                <option value="SUSPICIOUS">Suspicious (30-69)</option>
+                <option value="HIGH_RISK">High Risk (70-100)</option>
+              </select>
+
+              <select id="tx-filter-account" class="select-control">
+                <option value="All">All Accounts</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Date &amp; Time</th>
+                  <th>Merchant / Payee</th>
+                  <th>Category &amp; Auto-Tag</th>
+                  <th>Account</th>
+                  <th>Location</th>
+                  <th>Amount</th>
+                  <th>Risk Assessment</th>
+                  <th>Status</th>
+                  <th>Inspect</th>
+                </tr>
+              </thead>
+              <tbody id="all-tx-tbody">
+                <!-- Injected via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: BUDGETS, SUBSCRIPTIONS & WHAT-IF SIMULATOR -->
+      <section class="tab-view" id="tab-budgets">
+        <div class="budget-split-layout">
+          <!-- Left: Category Budgets -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <i class="ph ph-chart-bar"></i>
+                <h3>Monthly Category Budgets</h3>
+              </div>
+              <button class="btn btn-secondary-sm" id="btn-add-budget">
+                <i class="ph ph-plus"></i> Set Budget
+              </button>
+            </div>
+            <div class="budgets-grid" id="budgets-container">
+              <!-- Injected via JS -->
+            </div>
+          </div>
+
+          <!-- Right: Subscription Leakage Hunter -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <i class="ph ph-repeat"></i>
+                <h3>Recurring Subscription Audit</h3>
+              </div>
+              <div class="sub-cost-badge">
+                <span id="sub-monthly-total">$0.00/mo</span>
+              </div>
+            </div>
+            <p class="card-desc">AI scans your recurring outflows to highlight active SaaS, media, and gym subscriptions.</p>
+            <div class="subscriptions-list" id="subscriptions-container">
+              <!-- Injected via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- WHAT-IF COMPOUND WEALTH SIMULATOR -->
+        <div class="card what-if-card">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="ph-bold ph-magic-wand"></i>
+              <h3>What-If Wealth &amp; Expense Optimizer</h3>
+            </div>
+            <span class="badge purple">7% Compound Interest Model</span>
+          </div>
+          <p class="card-desc">Simulate how pruning minor expenses and recurring leaks turns into massive long-term wealth.</p>
+          
+          <div class="what-if-grid">
+            <div class="what-if-controls">
+              <div class="slider-control">
+                <div class="slider-header">
+                  <label>Reduce Dining Out Outflows</label>
+                  <strong id="slider-dining-val">25%</strong>
+                </div>
+                <input type="range" id="slider-dining" min="0" max="80" step="5" value="25" class="range-slider">
+              </div>
+
+              <div class="slider-control">
+                <div class="slider-header">
+                  <label>Additional Monthly Savings Boost</label>
+                  <strong id="slider-extra-val">$100/mo</strong>
+                </div>
+                <input type="range" id="slider-extra" min="0" max="800" step="25" value="100" class="range-slider">
+              </div>
+
+              <div class="subs-cancel-checklist" id="what-if-subs-checklist">
+                <label>Select Subscriptions to Simulate Cancelling:</label>
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+
+            <div class="what-if-results">
+              <div class="result-tile">
+                <span>Extra Monthly Savings</span>
+                <strong class="positive" id="wif-monthly-save">$0.00</strong>
+              </div>
+              <div class="result-tile">
+                <span>Annual Extra Capital</span>
+                <strong class="positive" id="wif-annual-save">$0.00</strong>
+              </div>
+              <div class="result-tile highlight">
+                <span>5-Year Compounded Wealth</span>
+                <strong class="emerald-glow" id="wif-5yr-wealth">$0.00</strong>
+              </div>
+              <div class="result-tile highlight">
+                <span>10-Year Compounded Wealth</span>
+                <strong class="emerald-glow" id="wif-10yr-wealth">$0.00</strong>
+              </div>
+              <div class="breakdown-box" id="wif-breakdown-list"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: AI FINANCIAL ADVISOR & CHAT -->
+      <section class="tab-view" id="tab-advisor">
+        <div class="advisor-grid">
+          <!-- Proactive Insights -->
+          <div class="card insights-card">
+            <div class="card-header">
+              <div class="card-title">
+                <i class="ph-bold ph-lightbulb-filament"></i>
+                <h3>Proactive Wealth &amp; Risk Insights</h3>
+              </div>
+              <button class="btn btn-ghost-sm" id="btn-refresh-insights">Re-Analyze</button>
+            </div>
+            <div class="insights-container" id="insights-container">
+              <!-- Injected via JS -->
+            </div>
+          </div>
+
+          <!-- Conversational AI Assistant -->
+          <div class="card chat-card">
+            <div class="card-header">
+              <div class="card-title">
+                <i class="ph-bold ph-chat-circle-dots"></i>
+                <h3>Ask Apex AI Financial Assistant</h3>
+              </div>
+              <span class="badge blue">Natural Language Query</span>
+            </div>
+            <div class="chat-messages" id="chat-messages">
+              <div class="chat-bubble ai">
+                <div class="bubble-header">
+                  <i class="ph-bold ph-sparkle"></i>
+                  <strong>Apex AI Assistant</strong>
+                </div>
+                <p>Hello! I am your AI wealth advisor and fraud prevention intelligence. You can ask me anything about your cashflow, budgets, high-risk charges, or how to save money this month.</p>
+                <div class="quick-prompts">
+                  <button class="chip" data-query="Where did I spend the most this month?">Where did I spend the most?</button>
+                  <button class="chip" data-query="Are there any suspicious or fraud alerts?">Check fraud alerts</button>
+                  <button class="chip" data-query="What is my predicted expense for the end of this month?">Predict month-end spend</button>
+                  <button class="chip" data-query="How can I save $250 more every month?">How can I save more?</button>
+                </div>
+              </div>
+            </div>
+            <div class="chat-input-bar">
+              <input type="text" id="chat-input" placeholder="Type your financial question (e.g. 'How much did I spend on dining?')...">
+              <button class="btn btn-primary" id="btn-send-chat">
+                <i class="ph-bold ph-paper-plane-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 5: FRAUD SECURITY CENTER -->
+      <section class="tab-view" id="tab-fraud">
+        <div class="fraud-header-card card">
+          <div class="fraud-stats-row">
+            <div class="f-stat-item">
+              <span class="label">Active Threats</span>
+              <strong class="danger" id="fraud-active-threats">0</strong>
+            </div>
+            <div class="f-stat-item">
+              <span class="label">Interception Accuracy</span>
+              <strong class="emerald">99.4%</strong>
+            </div>
+            <div class="f-stat-item">
+              <span class="label">Vectors Analyzed</span>
+              <strong class="blue">5 Real-Time Rules</strong>
+            </div>
+            <div class="f-stat-item">
+              <span class="label">Security State</span>
+              <strong id="security-state-badge" class="badge-status">Shield Armed</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="ph-bold ph-shield-warning"></i>
+              <h3>Flagged &amp; Suspicious Transaction Queue</h3>
+            </div>
+            <div class="filter-group">
+              <select id="fraud-status-filter" class="select-control">
+                <option value="active">Active Unresolved Alerts</option>
+                <option value="all">All Alerts (History)</option>
+              </select>
+            </div>
+          </div>
+          <div class="alerts-list" id="fraud-alerts-container">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="ph ph-prohibit"></i>
+              <h3>Merchant Blocklist &amp; Threat Defense</h3>
+            </div>
+          </div>
+          <div class="blocklist-container" id="blocklist-container">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 6: LIVE ATTACK SANDBOX (SIMULATOR) -->
+      <section class="tab-view" id="tab-simulator">
+        <div class="card sandbox-card">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="ph-bold ph-crosshair"></i>
+              <h3>Real-Time Fraud Attack Simulator &amp; Multi-Vector Benchmark</h3>
+            </div>
+            <span class="badge danger">Interactive Sandbox</span>
+          </div>
+          <p class="card-desc">
+            Test the AI Risk Engine live! Trigger realistic attack vectors to watch the detection models calculate geo-velocity anomalies, Z-score spikes, and micro-charge bursts with instant explainability.
+          </p>
+
+          <div class="attack-scenarios-grid">
+            <div class="attack-card" data-attack="geo_hop">
+              <div class="attack-icon red"><i class="ph-bold ph-globe-hemisphere-west"></i></div>
+              <h4>Impossible Geo-Hop</h4>
+              <p>User buys coffee in New York, then 15 minutes later a $650 charge occurs in London, UK (requires 14,000+ km/h).</p>
+              <button class="btn btn-danger-outline btn-simulate" data-type="geo_hop">Launch Attack &rarr;</button>
+            </div>
+
+            <div class="attack-card" data-attack="amount_spike">
+              <div class="attack-icon orange"><i class="ph-bold ph-trend-up"></i></div>
+              <h4>Extreme Amount Outlier</h4>
+              <p>Sudden $3,850.00 charge in Dining where user's 90-day average is $45 (Z-score &gt; +6.0 standard deviations).</p>
+              <button class="btn btn-danger-outline btn-simulate" data-type="amount_spike">Launch Attack &rarr;</button>
+            </div>
+
+            <div class="attack-card" data-attack="micro_burst">
+              <div class="attack-icon purple"><i class="ph-bold ph-lightning"></i></div>
+              <h4>Card Testing Micro-Burst</h4>
+              <p>Simulates rapid consecutive $1.10 and $1.99 authorization tests immediately followed by a $1,450 electronics drain.</p>
+              <button class="btn btn-danger-outline btn-simulate" data-type="micro_burst">Launch Attack &rarr;</button>
+            </div>
+
+            <div class="attack-card" data-attack="blocklist_hit">
+              <div class="attack-icon red"><i class="ph-bold ph-skull"></i></div>
+              <h4>Known Blocklist Network</h4>
+              <p>Attempts unauthorized $750 wire transfer to an entity registered on the global merchant blocklist.</p>
+              <button class="btn btn-danger-outline btn-simulate" data-type="blocklist_hit">Launch Attack &rarr;</button>
+            </div>
+
+            <div class="attack-card" data-attack="off_hours_crypto">
+              <div class="attack-icon yellow"><i class="ph-bold ph-moon-stars"></i></div>
+              <h4>Midnight Crypto Off-Ramp</h4>
+              <p>Simulates a 3:15 AM high-value ($1,200) offshore crypto asset conversion outside normal active hours.</p>
+              <button class="btn btn-danger-outline btn-simulate" data-type="off_hours_crypto">Launch Attack &rarr;</button>
+            </div>
+          </div>
+
+          <!-- Live Simulation Terminal Output -->
+          <div class="sim-terminal">
+            <div class="term-header">
+              <span class="term-dot red"></span>
+              <span class="term-dot yellow"></span>
+              <span class="term-dot green"></span>
+              <span class="term-title">AI Engine Live Diagnostic Log</span>
+            </div>
+            <div class="term-body" id="sim-terminal-output">
+              <p class="term-line info">[SYS] Multi-vector fraud detection engine armed and ready for simulation triggers.</p>
+              <p class="term-line info">[SYS] Listening on /api/simulator/trigger-attack...</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- MODAL: RECORD TRANSACTION -->
+  <div class="modal-backdrop" id="modal-transaction">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3><i class="ph-bold ph-plus-circle"></i> Record New Transaction</h3>
+        <button class="btn-close" id="btn-close-tx-modal">&times;</button>
+      </div>
+      <form id="form-transaction">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Transaction Type</label>
+            <select id="tx-type" class="form-control" required>
+              <option value="expense">Expense (Outflow)</option>
+              <option value="income">Income (Inflow)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Account</label>
+            <select id="tx-account-select" class="form-control" required></select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Merchant / Payee Name</label>
+            <input type="text" id="tx-merchant" class="form-control" placeholder="e.g. Whole Foods, Apple Store, Uber" required>
+          </div>
+          <div class="form-group">
+            <label id="label-tx-amount">Amount (<span class="active-curr-sym">₹</span> <span class="active-curr-code">INR</span>)</label>
+            <input type="number" id="tx-amount" class="form-control" step="0.01" min="0.01" placeholder="0.00" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Category</label>
+            <select id="tx-category" class="form-control">
+              <option value="Auto-Detect">✨ Auto-Detect with AI</option>
+              <option value="Groceries">Groceries</option>
+              <option value="Dining">Dining</option>
+              <option value="Utilities">Utilities</option>
+              <option value="Subscriptions">Subscriptions</option>
+              <option value="Tech & Electronics">Tech & Electronics</option>
+              <option value="Travel">Travel</option>
+              <option value="Health & Fitness">Health & Fitness</option>
+              <option value="Entertainment">Entertainment</option>
+              <option value="Luxury & Jewelry">Luxury & Jewelry</option>
+              <option value="Crypto & Transfers">Crypto & Transfers</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Location City</label>
+            <input type="text" id="tx-city" class="form-control" value="New York, USA">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Description / Note</label>
+          <input type="text" id="tx-desc" class="form-control" placeholder="Optional notes">
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-tx">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-submit-tx">Analyze &amp; Post</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: EXPLAINABLE AI RISK REPORT -->
+  <div class="modal-backdrop" id="modal-risk-detail">
+    <div class="modal-box modal-lg">
+      <div class="modal-header">
+        <h3><i class="ph-bold ph-shield-check"></i> Explainable AI Risk Report</h3>
+        <button class="btn-close" id="btn-close-risk-modal">&times;</button>
+      </div>
+      <div class="modal-body" id="risk-modal-body">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD BUDGET -->
+  <div class="modal-backdrop" id="modal-budget">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3><i class="ph ph-chart-bar"></i> Set Category Budget Cap</h3>
+        <button class="btn-close" id="btn-close-budget-modal">&times;</button>
+      </div>
+      <form id="form-budget">
+        <div class="form-group">
+          <label>Category</label>
+          <select id="budget-category-select" class="form-control" required>
+            <option value="Groceries">Groceries</option>
+            <option value="Dining">Dining</option>
+            <option value="Utilities">Utilities</option>
+            <option value="Subscriptions">Subscriptions</option>
+            <option value="Tech & Electronics">Tech & Electronics</option>
+            <option value="Travel">Travel</option>
+            <option value="Health & Fitness">Health & Fitness</option>
+            <option value="Entertainment">Entertainment</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label id="label-budget-limit">Monthly Spending Limit (<span class="active-curr-sym">₹</span> <span class="active-curr-code">INR</span>)</label>
+          <input type="number" id="budget-limit-val" class="form-control" step="10" min="1" placeholder="500" required>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-budget">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Budget</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: EMERGENCY LOCKDOWN CONFIRMATION -->
+  <div class="modal-backdrop" id="modal-panic-lock">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 style="color: var(--accent-danger);"><i class="ph-bold ph-shield-slash"></i> Emergency Vault Lockdown</h3>
+        <button class="btn-close" id="btn-close-panic-modal">&times;</button>
+      </div>
+      <div style="padding: 10px 0;">
+        <p style="color: var(--text-primary); font-size: 14px; line-height: 1.5; margin-bottom: 14px;">
+          Activating Emergency Lockdown will <strong>immediately freeze all 4 connected accounts &amp; debit/credit cards</strong>, blocking any incoming or outgoing wire transfers, POS charges, and subscriptions.
+        </p>
+        <div style="background-color: rgba(239, 68, 68, 0.1); border: 1px solid var(--border-danger); padding: 12px; border-radius: var(--radius-md); font-size: 13px; color: var(--accent-danger);">
+          ⚠️ Recommended if you suspect widespread physical card theft or API credential leaks.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btn-cancel-panic">Cancel</button>
+        <button type="button" class="btn btn-danger-sm" id="btn-confirm-panic-freeze">
+          <i class="ph-bold ph-lock"></i> Freeze All Accounts
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: 2FA STEP-UP SECURITY CHALLENGE -->
+  <div class="modal-backdrop" id="modal-2fa-challenge">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3><i class="ph-bold ph-fingerprint"></i> Sentinel Step-Up Verification</h3>
+        <button class="btn-close" id="btn-close-2fa-modal">&times;</button>
+      </div>
+      <div style="text-align: center; padding: 16px 0;">
+        <div style="width: 56px; height: 56px; background: rgba(99, 102, 241, 0.15); color: #6366f1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 14px;">
+          <i class="ph-bold ph-key"></i>
+        </div>
+        <h4 style="font-size: 16px; font-weight: 700; margin-bottom: 6px;">High-Risk Authorization Detected</h4>
+        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.4; margin-bottom: 18px;">
+          A temporary one-time passcode (OTP) was generated to confirm your biometric session.
+        </p>
+        <div style="display: flex; justify-content: center; gap: 8px; margin-bottom: 16px;">
+          <input type="text" maxlength="1" class="otp-box" value="7" readonly>
+          <input type="text" maxlength="1" class="otp-box" value="9" readonly>
+          <input type="text" maxlength="1" class="otp-box" value="4" readonly>
+          <input type="text" maxlength="1" class="otp-box" value="2" readonly>
+          <input type="text" maxlength="1" class="otp-box" value="8" readonly>
+          <input type="text" maxlength="1" class="otp-box" value="1" readonly>
+        </div>
+        <p style="font-size: 11px; color: var(--accent-emerald);">Biometric Hardware Key Verified (Sentinel 2026)</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="btn-complete-2fa" style="width: 100%;">
+          Authorize Transaction Protocol
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
